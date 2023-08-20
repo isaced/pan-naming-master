@@ -11,7 +11,7 @@ export default defineConfig({
       userscript: {
         icon: "https://vitejs.dev/logo.svg",
         namespace: "npm/vite-plugin-monkey",
-        match: ["https://pan.quark.cn/*"],
+        match: ["https://pan.quark.cn/*", "https://www.baidu.com/*"],
       },
     }),
   ],
