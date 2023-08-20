@@ -19,4 +19,4 @@
 
 ## 感谢
 
-- [vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey)
+本项目基于 [Svelte](https://svelte.dev) + [Tailwind CSS](https://tailwindcss.com) + [Flowbite Svelte](https://flowbite-svelte.com) + [vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey) 构建
