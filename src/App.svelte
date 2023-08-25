@@ -1,12 +1,21 @@
 <script lang="ts">
   import { Button, Modal, Tabs, TabItem, Label, Input, Spinner } from "flowbite-svelte";
+  import AddingTextForm from "./components/AddingTextForm.svelte";
+  import { AddingMode } from "./types/index";
+  import * as processor from "./utils/processor";
 
   let isShowingRenameModal = false;
   let searchText: string;
   let replaceText: string = "";
   let exampleInput: string;
-  $: exampleText = searchText ? exampleInput.replace(searchText, replaceText) : exampleInput;
+  $: exampleText = isReplaceMode
+    ? processor.replace({ orgText: exampleInput, searchText, replaceText })
+    : processor.adding({ orgText: exampleInput, addingText, addingMode });
   let isLoading = false;
+
+  let isReplaceMode = true;
+  let addingText: string = "";
+  let addingMode: AddingMode = AddingMode.Before;
 
   // 监听表格选中事件
   window.addEventListener("load", () => {
@@ -66,11 +75,8 @@
 
     isLoading = true;
     for (const item of getSelectedItems()) {
-      if (!searchText || searchText.length === 0) {
-        continue;
-      }
-      const newFileName = item.fileName.replace(searchText, replaceText);
-      if (newFileName === item.fileName) {
+      const newFileName = process(item.fileName);
+      if (!newFileName || newFileName === item.fileName) {
         continue;
       }
       await renameFile(item.fileId, newFileName);
@@ -96,12 +102,30 @@
       body: JSON.stringify({ fid: fileId, file_name: fileName }),
     });
   }
+
+  function process(orgText) {
+    console.log("[vite-plugin-monkey] process", { orgText, searchText, replaceText, addingText, addingMode });
+
+    if (isReplaceMode) {
+      if (!searchText || searchText.length === 0) {
+        return null;
+      }
+    } else {
+      if (!addingText || addingText.length === 0) {
+        return null;
+      }
+    }
+
+    return isReplaceMode
+      ? processor.replace({ orgText, searchText, replaceText })
+      : processor.adding({ orgText, addingText, addingMode });
+  }
 </script>
 
 <Modal title="批量重命名" bind:open={isShowingRenameModal}>
   <div>
     <Tabs>
-      <TabItem open title="替换文本">
+      <TabItem bind:open={isReplaceMode} title="替换文本">
         <div class="space-y-4">
           <div>
             <Label for="default-input" class="block mb-2">查找</Label>
@@ -111,10 +135,13 @@
             <Label for="first_name" class="mb-2">替换成</Label>
             <Input type="text" id="first_name" required bind:value={replaceText} />
           </div>
-          <div>示例：{exampleText}</div>
         </div>
       </TabItem>
+      <TabItem title="添加文本">
+        <AddingTextForm bind:addingMode bind:addingText />
+      </TabItem>
     </Tabs>
+    <div class="mt-5">示例：{exampleText}</div>
   </div>
   <svelte:fragment slot="footer">
     <Button
