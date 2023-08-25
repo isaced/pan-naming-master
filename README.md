@@ -1,8 +1,10 @@
-# 夸克网盘批量重命名脚本
+# 夸克网盘批量重命名脚本 ![greasyfork version](https://img.shields.io/greasyfork/v/473475-夸克网盘批量重命名) ![greasyfork download](https://img.shields.io/greasyfork/dt/473475-夸克网盘批量重命名)
 
 一个油猴脚本，增加「夸克网盘」Web 端文件、文件夹批量重命名功能，后续增加阿里云盘等支持。
 
-![screenshot](https://github.com/isaced/pan-naming-master/assets/2088605/9133095d-8177-4dfe-b079-b3a97007c9e1)
+
+![screenshot1](https://github.com/isaced/pan-naming-master/assets/2088605/1f97ff5a-3901-4279-8b95-f6cacb94db91)
+![screenshot2](https://github.com/isaced/pan-naming-master/assets/2088605/8437ed15-d30f-4e21-924b-8b1e6e981a4b)
 
 ## 安装
 
