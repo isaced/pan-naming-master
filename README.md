@@ -1,6 +1,6 @@
-# 夸克网盘批量重命名脚本 ![greasyfork version](https://img.shields.io/greasyfork/v/473475-夸克网盘批量重命名) ![greasyfork download](https://img.shields.io/greasyfork/dt/473475-夸克网盘批量重命名)
+# 夸克/阿里网盘批量重命名脚本 [![greasyfork version](https://greasyfork.org/zh-CN/scripts/473475-夸克网盘批量重命名)]() [![greasyfork download](https://img.shields.io/greasyfork/dt/473475-夸克网盘批量重命名)](https://greasyfork.org/zh-CN/scripts/473475-夸克网盘批量重命名)
 
-一个油猴脚本，增加「夸克网盘」Web 端文件、文件夹批量重命名功能，后续增加阿里云盘等支持。
+一个油猴脚本，增加「夸克网盘」/「阿里云盘」Web 端文件、文件夹批量重命名功能。
 
 
 ![screenshot1](https://github.com/isaced/pan-naming-master/assets/2088605/1f97ff5a-3901-4279-8b95-f6cacb94db91)
@@ -12,6 +12,11 @@
 - [直接下载](https://github.com/isaced/pan-naming-master/releases)
 
 ## 特性
+
+支持网盘：
+
+- 夸克网盘
+- 阿里云盘
 
 参照 macOS Finder 提供的重命名，提供三种模式：
 
