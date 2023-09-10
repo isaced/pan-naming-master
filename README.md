@@ -1,4 +1,4 @@
-# 夸克/阿里网盘批量重命名脚本 [![greasyfork version](https://greasyfork.org/zh-CN/scripts/473475-夸克网盘批量重命名)]() [![greasyfork download](https://img.shields.io/greasyfork/dt/473475-夸克网盘批量重命名)](https://greasyfork.org/zh-CN/scripts/473475-夸克网盘批量重命名)
+# 夸克/阿里网盘批量重命名脚本 [![greasyfork version](https://img.shields.io/greasyfork/v/473475-夸克网盘批量重命名)](https://greasyfork.org/zh-CN/scripts/473475-夸克网盘批量重命名) [![greasyfork download](https://img.shields.io/greasyfork/dt/473475-夸克网盘批量重命名)](https://greasyfork.org/zh-CN/scripts/473475-夸克网盘批量重命名)
 
 一个油猴脚本，增加「夸克网盘」/「阿里云盘」Web 端文件、文件夹批量重命名功能。
 
