@@ -1,10 +1,34 @@
 <script lang="ts">
-  import { Button, Modal, Tabs, TabItem, Label, Input, Spinner } from "flowbite-svelte";
+  import { onMount } from "svelte";
+  import {
+    Button,
+    Modal,
+    Tabs,
+    TabItem,
+    Label,
+    Input,
+    Spinner,
+    Table,
+    TableBody,
+    TableBodyCell,
+    TableBodyRow,
+    TableHead,
+    TableHeadCell,
+    Checkbox,
+  } from "flowbite-svelte";
   import AddingTextForm from "./components/AddingTextForm.svelte";
   import { AddingMode } from "./types/index";
   import * as processor from "./utils/processor";
+  import { renameFile } from "./utils/network";
+
+  interface AliyunDriveFile {
+    drive_id: string;
+    file_id: string;
+    name: string;
+  }
 
   let isShowingRenameModal = false;
+  let isShowingSelectFileModal = false;
   let searchText: string;
   let replaceText: string = "";
   let exampleInput: string;
@@ -17,13 +41,52 @@
   let addingText: string = "";
   let addingMode: AddingMode = AddingMode.Before;
 
+  let selectedFileIds: string[] = [];
+
+  let site: "aliyun" | "kuake" = window.location.host === "www.aliyundrive.com" ? "aliyun" : "kuake";
+
+  let aliyundriveFileList: AliyunDriveFile[] = [];
+
+  if (site === "aliyun") {
+    console.log("[vite-plugin-monkey] site....", window);
+
+    onMount(() => {
+      const originalSend = XMLHttpRequest.prototype.send;
+
+      XMLHttpRequest.prototype.send = function (data) {
+        this.addEventListener("load", function (event) {
+          if (this.status == 200) {
+            const responseURL = this.responseURL;
+            if (responseURL.indexOf("/file/list") > 0) {
+              var response = this.response;
+              try {
+                response = JSON.parse(response);
+              } catch (error) {}
+              console.log("[vite-plugin-monkey] response:", response);
+              aliyundriveFileList = response.items as AliyunDriveFile[];
+              if (aliyundriveFileList) {
+                setTimeout(() => {
+                  showRenameButton();
+                }, 200);
+              }
+            }
+          }
+        });
+
+        // 调用原始的 send 方法
+        originalSend.call(this, data);
+      };
+    });
+  }
+
   // 监听表格选中事件
   window.addEventListener("load", () => {
-    document.querySelector(".ant-table-tbody").addEventListener("click", (e) => {
-      setTimeout(() => {
-        showRenameButton();
-      }, 100);
-    });
+    site === "kuake" &&
+      document.querySelector(".ant-table-tbody").addEventListener("click", (e) => {
+        setTimeout(() => {
+          showRenameButton();
+        }, 100);
+      });
   });
 
   // 获取选中的文件列表
@@ -40,32 +103,71 @@
 
   // 显示重命名按钮
   function showRenameButton() {
-    const selectedFileIds = getSelectedItems();
-    if (selectedFileIds.length > 0) {
-      const btnGroup = document.querySelector(".btn-operate .ant-btn-group");
-      const isExist = btnGroup.querySelector("#renameBtn");
-      if (isExist) {
+    if (site === "kuake") {
+      const selectedFileIds = getSelectedItems();
+      if (selectedFileIds.length == 0) {
         return;
       }
-
-      const renameBtn = document.createElement("button");
-      renameBtn.id = "renameBtn";
-      renameBtn.className = "ant-btn btn-file w-300";
-      renameBtn.innerHTML = "批量重命名";
-      renameBtn.addEventListener("click", () => {
-        console.log("[vite-plugin-monkey] rename:", selectedFileIds);
-        showDialog();
-      });
-      btnGroup.appendChild(renameBtn);
     }
+
+    const btnGroup = document.querySelector(site === "kuake" ? ".btn-operate .ant-btn-group" : "#root header");
+    const isExist = btnGroup.querySelector("#renameBtn");
+    if (isExist) {
+      return;
+    }
+
+    const renameBtn = document.createElement("button");
+    renameBtn.id = "renameBtn";
+    renameBtn.className = "ant-btn btn-file w-300";
+    renameBtn.innerHTML = "批量重命名";
+    renameBtn.addEventListener("click", () => {
+      console.log("[vite-plugin-monkey] rename click");
+
+      if (site === "aliyun") {
+        showSelectFileModal();
+      } else {
+        showDialog();
+      }
+    });
+    btnGroup.appendChild(renameBtn);
+  }
+
+  function showSelectFileModal() {
+    isShowingSelectFileModal = true;
   }
 
   // 显示重命名弹窗
   function showDialog() {
     isShowingRenameModal = true;
 
-    const selectedItems = getSelectedItems();
-    exampleInput = selectedItems?.[0]?.fileName;
+    if (site === "kuake") {
+      const selectedItems = getSelectedItems();
+      exampleInput = selectedItems?.[0]?.fileName;
+    } else {
+      console.log("[vite-plugin-monkey] select files:", selectedFileIds);
+      exampleInput = aliyundriveFileList.find((item) => selectedFileIds.includes(item.file_id)).name;
+    }
+  }
+
+  async function rename() {
+    if (site === "kuake") {
+      for (const item of getSelectedItems()) {
+        const newFileName = process(item.fileName);
+        if (!newFileName || newFileName === item.fileName) {
+          continue;
+        }
+        await renameFile(site, item.fileId, newFileName, null);
+      }
+    } else {
+      selectedFileIds.forEach((fileId) => {
+        const file = aliyundriveFileList.find((item) => item.file_id === fileId);
+        const newFileName = process(file.name);
+        if (!newFileName || newFileName === file.name) {
+          return;
+        }
+        renameFile(site, fileId, newFileName, file.drive_id);
+      });
+    }
   }
 
   // 提交重命名请求
@@ -74,33 +176,14 @@
     console.log({ findText: searchText, replaceText });
 
     isLoading = true;
-    for (const item of getSelectedItems()) {
-      const newFileName = process(item.fileName);
-      if (!newFileName || newFileName === item.fileName) {
-        continue;
-      }
-      await renameFile(item.fileId, newFileName);
-    }
+
+    await rename();
+
     isLoading = false;
     isShowingRenameModal = false;
 
     // 刷新当前页面
     window.location.reload();
-  }
-
-  // 重命名单个文件
-  function renameFile(fileId: string, fileName: string) {
-    if (!fileId || !fileName || fileName.length === 0) {
-      return;
-    }
-    return fetch("https://drive-pc.quark.cn/1/clouddrive/file/rename?pr=ucpro&fr=pc", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ fid: fileId, file_name: fileName }),
-    });
   }
 
   function process(orgText) {
@@ -121,6 +204,46 @@
       : processor.adding({ orgText, addingText, addingMode });
   }
 </script>
+
+<Modal title="选择文件" bind:open={isShowingSelectFileModal}>
+  <Table hoverable={true}>
+    <TableHead>
+      <TableHeadCell class="w-4">
+        <Checkbox
+          on:change={(e) => {
+            // @ts-ignore
+            const cheked = e.target.checked;
+            cheked ? (selectedFileIds = aliyundriveFileList.map((item) => item.file_id)) : (selectedFileIds = []);
+          }}
+        />
+      </TableHeadCell>
+      <TableHeadCell>文件名称</TableHeadCell>
+    </TableHead>
+    <TableBody>
+      {#each aliyundriveFileList as file}
+        <TableBodyRow>
+          <TableBodyCell>
+            <Checkbox bind:group={selectedFileIds} value={file.file_id} />
+          </TableBodyCell>
+          <TableBodyCell>{file.name}</TableBodyCell>
+        </TableBodyRow>
+      {/each}
+    </TableBody>
+  </Table>
+  <svelte:fragment slot="footer">
+    <Button
+      color="blue"
+      on:click={() => {
+        isShowingSelectFileModal = false;
+        showDialog();
+      }}
+      disabled={selectedFileIds.length === 0}
+    >
+      继续
+    </Button>
+    <Button color="alternative" on:click={() => (isShowingSelectFileModal = false)}>取消</Button>
+  </svelte:fragment>
+</Modal>
 
 <Modal title="批量重命名" bind:open={isShowingRenameModal}>
   <div>

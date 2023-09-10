@@ -9,14 +9,22 @@ export default defineConfig({
     monkey({
       entry: "src/main.ts",
       userscript: {
-        name: "夸克网盘批量重命名",
-        description: "夸克网盘中文件、文件夹批量重命名，后续会支持阿里云盘",
+        name: "夸克/阿里网盘批量重命名",
+        description: "夸克/阿里网盘中文件、文件夹批量重命名",
         author: "isaced",
         license: "MIT",
-        icon: "https://raw.githubusercontent.com/isaced/pan-naming-master/main/logo.svg",
+        icon:
+          "https://raw.githubusercontent.com/isaced/pan-naming-master/main/logo.svg",
         homepageURL: "https://github.com/isaced/pan-naming-master",
         namespace: "https://github.com/isaced",
-        match: ["https://pan.quark.cn/*"],
+        match: [
+          "https://pan.quark.cn/*",
+          "https://www.aliyundrive.com/drive/file/*",
+        ],
+        grant: [
+          "unsafeWindow",
+        ],
+        "run-at": "document-body",
       },
     }),
   ],
