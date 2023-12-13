@@ -162,13 +162,13 @@
         await renameFile(site, item.fileId, newFileName, null);
       }
     } else {
-      selectedFileIds.forEach((fileId) => {
+      selectedFileIds.forEach(async (fileId) => {
         const file = aliyundriveFileList.find((item) => item.file_id === fileId);
         const newFileName = process(file.name);
         if (!newFileName || newFileName === file.name) {
           return;
         }
-        renameFile(site, fileId, newFileName, file.drive_id);
+        await renameFile(site, fileId, newFileName, file.drive_id);
       });
     }
   }
