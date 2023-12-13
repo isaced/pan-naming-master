@@ -77,17 +77,12 @@
         originalSend.call(this, data);
       };
     });
+  } else if (site === "kuake") {
+    // 监听表格选中事件
+    window.addEventListener("load", () => {
+      site === "kuake" && showRenameButton();
+    });
   }
-
-  // 监听表格选中事件
-  window.addEventListener("load", () => {
-    site === "kuake" &&
-      document.querySelector(".ant-table-tbody").addEventListener("click", (e) => {
-        setTimeout(() => {
-          showRenameButton();
-        }, 100);
-      });
-  });
 
   // 获取选中的文件列表
   function getSelectedItems() {
@@ -103,20 +98,10 @@
 
   // 显示重命名按钮
   function showRenameButton() {
-    if (site === "kuake") {
-      const selectedFileIds = getSelectedItems();
-      if (selectedFileIds.length == 0) {
-        return;
-      }
-    }
-
-    const btnGroup = document.querySelector(site === "kuake" ? ".btn-operate .ant-btn-group" : "body");
-    const isExist = btnGroup.querySelector("#renameBtn");
+    const isExist = document.body.querySelector("#renameBtn");
     if (isExist) {
       return;
     }
-
-    console.log("[vite-plugin-monkey] btnGroup:", btnGroup);
 
     const renameBtn = document.createElement("button");
     renameBtn.id = "renameBtn";
@@ -132,7 +117,7 @@
         showDialog();
       }
     });
-    btnGroup.appendChild(renameBtn);
+    document.body.appendChild(renameBtn);
   }
 
   function showSelectFileModal() {
