@@ -43,7 +43,7 @@
 
   let selectedFileIds: string[] = [];
 
-  let site: "aliyun" | "kuake" = window.location.host === "www.aliyundrive.com" ? "aliyun" : "kuake";
+  let site: "aliyun" | "kuake" = window.location.host.includes("ali") ? "aliyun" : "kuake";
 
   let aliyundriveFileList: AliyunDriveFile[] = [];
 
@@ -110,16 +110,19 @@
       }
     }
 
-    const btnGroup = document.querySelector(site === "kuake" ? ".btn-operate .ant-btn-group" : "#root header");
+    const btnGroup = document.querySelector(site === "kuake" ? ".btn-operate .ant-btn-group" : "body");
     const isExist = btnGroup.querySelector("#renameBtn");
     if (isExist) {
       return;
     }
 
+    console.log("[vite-plugin-monkey] btnGroup:", btnGroup);
+
     const renameBtn = document.createElement("button");
     renameBtn.id = "renameBtn";
-    renameBtn.className = "ant-btn btn-file w-300";
-    renameBtn.innerHTML = "批量重命名";
+    renameBtn.className =
+      " absolute right-2 top-2 p-2 w-10 w-10 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-blue-600 border border-transparent active:bg-blue-600 hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue rounded-full ";
+    renameBtn.innerHTML = "🛠";
     renameBtn.addEventListener("click", () => {
       console.log("[vite-plugin-monkey] rename click");
 

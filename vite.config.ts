@@ -20,6 +20,7 @@ export default defineConfig({
         match: [
           "https://pan.quark.cn/*",
           "https://www.aliyundrive.com/drive/file/*",
+          "https://www.alipan.com/drive/file/*",
         ],
         grant: [
           "unsafeWindow",
