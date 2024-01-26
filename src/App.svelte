@@ -80,7 +80,7 @@
   } else if (site === "kuake") {
     // 监听表格选中事件
     window.addEventListener("load", () => {
-      site === "kuake" && showRenameButton();
+      showRenameButton();
     });
   }
 
@@ -126,15 +126,20 @@
 
   // 显示重命名弹窗
   function showDialog() {
-    isShowingRenameModal = true;
-
     if (site === "kuake") {
+      if (getSelectedItems().length == 0) {
+        alert("请先选中文件");
+        return;
+      }
+
       const selectedItems = getSelectedItems();
       exampleInput = selectedItems?.[0]?.fileName;
     } else {
       console.log("[vite-plugin-monkey] select files:", selectedFileIds);
       exampleInput = aliyundriveFileList.find((item) => selectedFileIds.includes(item.file_id)).name;
     }
+
+    isShowingRenameModal = true;
   }
 
   async function rename() {
